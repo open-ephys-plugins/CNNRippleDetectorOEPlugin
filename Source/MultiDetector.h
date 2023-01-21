@@ -36,7 +36,7 @@ class MultiDetectorSettings
 		int elapsedCalibrationPoints;
 		bool isCalibrating;
 
-		int drift;
+		float drift;
 
 		int timeout;
 		int timeoutSamples;

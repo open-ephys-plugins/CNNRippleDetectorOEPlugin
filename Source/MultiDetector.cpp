@@ -176,7 +176,7 @@ void MultiDetector::updateSettings()
 		settings[stream->getStreamId()]->calibrationTime = 0;
 		settings[stream->getStreamId()]->elapsedCalibrationPoints = 0;
 		settings[stream->getStreamId()]->isCalibrating = true;
-		settings[stream->getStreamId()]->drift = 0;
+		settings[stream->getStreamId()]->drift = 0.0f;
 		settings[stream->getStreamId()]->timeout = 0;
 		settings[stream->getStreamId()]->timeoutSamples = 0;
 		settings[stream->getStreamId()]->timeoutDownsampled = 0;
@@ -404,11 +404,13 @@ void MultiDetector::process(AudioBuffer<float>& buffer)
 
                             settings[streamId]->isCalibrating = false;
                             
+							LOGD("Calibration finished");
+
                             for (int chan = 0; chan < NUM_CHANNELS; chan++) {
                                 settings[streamId]->channelsMeans[chan] = getMean(streamId, chan);
                                 settings[streamId]->channelsStds[chan] = getStd(streamId, chan);
 
-                                //std::cout << "Chan " << chan << " mean " << settings[streamId]->channelsMeans[chan] << " std " << settings[streamId]->channelsStds[chan] << std::endl;
+                                LOGD("Chan ", chan, " mean ", settings[streamId]->channelsMeans[chan], " std ", settings[streamId]->channelsStds[chan]);
                             }
                         }
                         
@@ -772,7 +774,6 @@ void MultiDetector::saveCustomParametersToXml(XmlElement* xml)
 {
     xml->setAttribute ("path", modelPath.getFullPathName().toStdString());
 }
-
 
 void MultiDetector::loadCustomParametersFromXml(XmlElement* xml)
 {
