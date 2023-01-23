@@ -282,6 +282,8 @@ void MultiDetector::parameterValueChanged(Parameter* param)
 					settings[streamId]->inputChannels.add(globalIndex);
 				}
 
+				settings[streamId]->inputChannels.sort();
+
 				settings[streamId]->isCalibrating = true;
 				settings[streamId]->elapsedCalibrationPoints = 0;
 			}
