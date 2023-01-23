@@ -156,20 +156,26 @@ void MultiDetector::updateSettings()
 	for (auto stream : getDataStreams())
 	{
 
-        /* Check if NUM_CHANNELS input channels have already been set.
-           If not, default to the first NUM_CHANNELS available channels */
-        if (stream->getParameter("CNN_Input")->getValue().size() != NUM_CHANNELS) {
+        // Only process stream if it has 8 or more channels
+		if (getDataStream(stream->getStreamId())->getContinuousChannels().size() >= NUM_CHANNELS)
+		{
+			if (stream->getParameter("CNN_Input")->getValue().size() != NUM_CHANNELS) {
 
-            settings[stream->getStreamId()]->inputChannels.clear();
-            var selectedChannels;
-            for (int i = 0; i < NUM_CHANNELS; i++)
-            {
-                selectedChannels.append(i);
-                settings[stream->getStreamId()]->inputChannels.add(i);
-            }
-            stream->getParameter("CNN_Input")->setNextValue(selectedChannels);
+				settings[stream->getStreamId()]->inputChannels.clear();
+				var selectedChannels;
+				for (int i = 0; i < NUM_CHANNELS; i++)
+				{
+					selectedChannels.append(i);
+					settings[stream->getStreamId()]->inputChannels.add(i);
+				}
+				stream->getParameter("CNN_Input")->setNextValue(selectedChannels);
 
-        }
+			}
+		}
+		else
+		{
+			(*stream)["enable_stream"] = false;
+		}
 
 		settings[stream->getStreamId()]->pulseDuration = 0;
 		settings[stream->getStreamId()]->pulseDurationSamples = 0;
@@ -254,21 +260,37 @@ void MultiDetector::parameterValueChanged(Parameter* param)
 
 	if (paramName.equalsIgnoreCase("CNN_Input"))
 	{
-        Array<var>* array = param->getValue().getArray();
-        if (array->size() == NUM_CHANNELS)
-        {
-            settings[streamId]->inputChannels.clear();
 
-            for (int i = 0; i < NUM_CHANNELS; i++)
-            {
-                int localIndex = int(array->getReference(i));
-                int globalIndex = getDataStream(param->getStreamId())->getContinuousChannels()[localIndex]->getGlobalIndex();
-                settings[streamId]->inputChannels.add(globalIndex);
-            }
+		Array<ContinuousChannel*> chans = getDataStream(param->getStreamId())->getContinuousChannels();
 
-            settings[streamId]->isCalibrating = true;
-			settings[streamId]->elapsedCalibrationPoints = 0;
-        }	
+		// Check that input stream has at least NUM_CHANNELS channels
+		if (chans.size() >= NUM_CHANNELS)
+		{
+
+			Array<var>* array = param->getValue().getArray();
+			if (array->size() == NUM_CHANNELS)
+			{
+				settings[streamId]->inputChannels.clear();
+
+				for (int i = 0; i < NUM_CHANNELS; i++)
+				{
+
+					int localIndex = int(array->getReference(i));
+
+					ContinuousChannel* chan = chans[localIndex];
+					int globalIndex = chan->getGlobalIndex();
+					settings[streamId]->inputChannels.add(globalIndex);
+				}
+
+				settings[streamId]->isCalibrating = true;
+				settings[streamId]->elapsedCalibrationPoints = 0;
+			}
+
+		}
+		else
+		{
+
+		}
 	}
 	else if (paramName.equalsIgnoreCase("pulse_duration"))
 	{
