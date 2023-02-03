@@ -103,9 +103,9 @@ endforeach()
 if (MSVC)
 	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libs/windows/lib/ DESTINATION ${GUI_BIN_DIR}/shared  FILES_MATCHING PATTERN "*.dll")
 elseif(LINUX)
-	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libs/linux/bin/ DESTINATION ${GUI_BIN_DIR}/shared)
+	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libs/linux/lib/ DESTINATION ${GUI_BIN_DIR}/shared)
 elseif(APPLE)
-	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libs/macos/bin/ DESTINATION $ENV{HOME}/Library/Application\ Support/open-ephys/shared-api8)
+	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libs/macos/lib/ DESTINATION $ENV{HOME}/Library/Application\ Support/open-ephys/shared-api8)
 endif()
 
 
