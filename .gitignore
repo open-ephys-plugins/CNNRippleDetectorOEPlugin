@@ -13,3 +13,6 @@
 
 # 3. MacOS specific
 **/.DS_Store
+
+# 4. IDE files
+.vscode/
