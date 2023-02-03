@@ -268,6 +268,7 @@ void MultiDetector::parameterValueChanged(Parameter* param)
 		{
 
 			Array<var>* array = param->getValue().getArray();
+			
 			if (array->size() == NUM_CHANNELS)
 			{
 				settings[streamId]->inputChannels.clear();
@@ -277,9 +278,12 @@ void MultiDetector::parameterValueChanged(Parameter* param)
 
 					int localIndex = int(array->getReference(i));
 
-					ContinuousChannel* chan = chans[localIndex];
-					int globalIndex = chan->getGlobalIndex();
-					settings[streamId]->inputChannels.add(globalIndex);
+					if (localIndex < chans.size())
+					{
+						ContinuousChannel* chan = chans[localIndex];
+						int globalIndex = chan->getGlobalIndex();
+						settings[streamId]->inputChannels.add(globalIndex);
+					}
 				}
 
 				settings[streamId]->inputChannels.sort();
