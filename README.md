@@ -1,16 +1,19 @@
 # CNN Ripple
 
-![CNN-ripple](cnn-ripple-plugin.png)
+![CNN-ripple](https://open-ephys.github.io/gui-docs/_images/cnnripple.png)
 
 A 1D convolutional neural network (CNN) operating over high-density LFP recordings to detect hippocampal SWR both offline and online. It works with recordings from several types of recordings (e.g. linear arrays, high-density probes, ultradense Neuropixels).
 
-This plugin allows the use of CNN-ripple as a real-time detection tool as part of the Open Ephys platform.
-
-You can check our results in our manuscript ([Navas-Olive, Amaducci et al. eLife 2022](https://elifesciences.org/articles/77772))
 
 ## Installation
 
-* NOTE: For now, you must manually install the relevant tensorflow libraries for your setup. We are working on a solution to automate this process.
+This plugin can be added via the Open Ephys GUI Plugin Installer. To access the Plugin Installer, press **ctrl-P** or **⌘P** from inside the GUI. Once the installer is loaded, browse to the "CNN Ripple" plugin and click "Install."
+
+## Usage
+
+Instructions for using the CNN Ripple plugin are available [here](https://open-ephys.github.io/gui-docs/User-Manual/Plugins/CNN-Ripple.html).
+
+## Building from source 
 
 1. Clone this plugin repository inside of a directory that is at the same level as the plugin-GUI's source code. For example, if you have the plugin-GUI source code in `~/code/plugin-GUI`, you should clone this repository in `~/code/OEPlugins/cnn-ripple`. The directory structure should look like this:
     ```
@@ -61,14 +64,3 @@ You can check our results in our manuscript ([Navas-Olive, Amaducci et al. eLife
 
     # Build and run the generated Xcode project using the INSTALL target
     ```
-
-## Usage
-The plugin receives 8 channels as input. You can use the `ChannelMap` plugin to select the channels.
-
-- **File:** selector for the CNN model `.pb` file. The default model is located in the `cnn-ripple/model` directory.
-- **Pulse duration:** duration of the TTL pulse sent when a ripple is detected (in milliseconds).
-- **Timeout:** recovery time after a pulse is sent (in milliseconds).
-- **Calibration:** calibration time before the experiment to setup the signals normalization (in seconds). One minute is usually enough.
-- **Threshold:** probability threshold for the detections. Between 0 and 1.
-- **Drift:** number of standard deviations above which the signal is considered to be dominated by extreme offset drift and the CNN will not predict.
-- **Output:** output channel for TTL pulses.
