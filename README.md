@@ -30,7 +30,12 @@ You can check our results in our manuscript ([Navas-Olive, Amaducci et al. eLife
 
 2. Navigate to the cnn-ripple's ```libs``` directory and open the folder with your current operating system's name
 
-3. Download the latest tensorflow C libraries from [here](https://www.tensorflow.org/install/lang_c) and extract the entire contents into the platform-specifc folder you opened in step 2 above. 
+3. Download the tensorflow C libraries from the link below and extract the entire contents into the platform-specifc folder you opened in step 2 above. 
+
+    - [Windows](https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-windows-x86_64-2.3.0.zip)
+    - [Linux](https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-linux-x86_64-2.3.0.tar.gz)
+    - [MacOS](https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-darwin-x86_64-2.3.0.tar.gz)
+
 
 4. Navigate to the cnn-ripple's ```Build``` directory and run the following commands:
 
