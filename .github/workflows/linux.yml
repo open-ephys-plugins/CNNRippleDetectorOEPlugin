@@ -1,0 +1,51 @@
+name: linux
+
+on: 
+  push:
+
+jobs:
+
+  build-linux:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      run: |
+        sudo apt update
+        cd ../..
+        git clone https://github.com/open-ephys/plugin-GUI.git --branch main
+        sudo ./plugin-GUI/Resources/Scripts/install_linux_dependencies.sh
+        cd plugin-GUI/Build
+        cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
+    - name: build
+      run: |
+        cd libs/linux
+        curl -L https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow-cpu-linux-x86_64-2.3.0.tar.gz -o tensorflow-linux.tar.gz 
+        tar -xvf tensorflow-linux.tar.gz
+        cd ../../Build
+        cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
+        make
+#    - name: test
+#      run: cd build && ctest
+    - name: deploy
+      if: github.ref == 'refs/heads/main'
+      env:
+        artifactoryApiKey: ${{ secrets.artifactoryApiKey }}
+        build_dir: "Build"
+        package: CNNRipple-linux
+      run: |
+        plugin_api=$(grep -rnw ../../plugin-GUI/Source -e '#define PLUGIN_API_VER' | grep -Eo "[0-9]*" | tail -1)
+        tag=$(git describe --tags $(git rev-list --tags --max-count=1))
+        new_plugin_ver=$tag-API$plugin_api
+        mkdir plugins 
+        cp -r $build_dir/*.so plugins
+        mkdir shared	
+        cp -r libs/linux/lib/* shared
+        zipfile=${package}_${new_plugin_ver}.zip
+        zip --symlinks -r -X $zipfile plugins shared
+        curl -H "X-JFrog-Art-Api:$artifactoryApiKey" -T $zipfile "https://openephys.jfrog.io/artifactory/CNNRipple-plugin/linux/$zipfile"
