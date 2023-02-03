@@ -27,7 +27,7 @@ TTLEventPtr MultiDetectorSettings::createEvent(int64 outputLine, int64 sample_nu
 }
 
 
-MultiDetector::MultiDetector() : GenericProcessor("CNN-ripple")
+MultiDetector::MultiDetector() : GenericProcessor("CNN Ripple")
 {
 
 	addSelectedChannelsParameter(

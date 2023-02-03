@@ -60,7 +60,7 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 		info->type = Plugin::PROCESSOR;
 
 		//Processor name
-		info->processor.name = "CNN-ripple"; //Processor name shown in the GUI
+		info->processor.name = "CNN Ripple"; //Processor name shown in the GUI
 
 		//Type of processor. Can be FilterProcessor, SourceProcessor, SinkProcessor or UtilityProcessor. Specifies where on the processor list will appear
 		info->processor.type = Plugin::Processor::FILTER;
@@ -68,29 +68,6 @@ extern "C" EXPORT int getPluginInfo(int index, Plugin::PluginInfo* info)
 		//Class factory pointer. Replace "MultiDetectorSpace::MultiDetector" with the namespace and class name.
 		info->processor.creator = &(Plugin::createProcessor<MultiDetector>);
 		break;
-		/**
-		Examples for other plugin types
-
-		For a RecordEngine, which provides formats for recording data
-		case x:
-		info->type = Plugin::PLUGIN_TYPE_RECORD_ENGINE;
-		info->recordEngine.name = "Record Engine Name";
-		info->recordEngine.creator = &(Plugin::createRecordEngine<RecordEngineClassName>);
-		break;
-
-		For a DataThread, which allows to use the existing SourceNode to connect to an asynchronous data source, such as acquisition hardware
-		case x:
-		info->type = Plugin::PLUGIN_TYPE_DATA_THREAD;
-		info->dataThread.name = "Source name"; //Name that will appear on the processor list
-		info->dataThread.creator = &createDataThread<DataThreadClassName>;
-
-		For a FileSource, which allows importing data formats into the FileReader
-		case x:
-		info->type = Plugin::PLUGIN_TYPE_FILE_SOURCE;
-		info->fileSource.name = "File Source Name";
-		info->fileSource.extensions = "xxx;xxx;xxx"; //Semicolon separated list of supported extensions. Eg: "txt;dat;info;kwd"
-		info->fileSource.creator = &(Plugin::createFileSource<FileSourceClassName>);
-		**/
 
 	default:
 		return -1;
