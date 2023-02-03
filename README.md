@@ -28,13 +28,9 @@ You can check our results in our manuscript ([Navas-Olive, Amaducci et al. eLife
     │       └── ...
     ```
 
-2. Navigate to the cnn-ripple's ```libs``` directory and create a folder with your current operating system's name exactly as below: 
+2. Navigate to the cnn-ripple's ```libs``` directory and open the folder with your current operating system's name
 
-    - If using Linux, create a folder called `linux`. 
-    - If using Windows, create a folder called `windows`.
-    - If using MacOS, create a folder called `macos`.
-
-3. Download the latest tensorflow C libraries from [here](https://www.tensorflow.org/install/lang_c) and extract the entire contents into the folder you created in step 2 above. 
+3. Download the latest tensorflow C libraries from [here](https://www.tensorflow.org/install/lang_c) and extract the entire contents into the platform-specifc folder you opened in step 2 above. 
 
 4. Navigate to the cnn-ripple's ```Build``` directory and run the following commands:
 
