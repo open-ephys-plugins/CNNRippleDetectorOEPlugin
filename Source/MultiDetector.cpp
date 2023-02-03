@@ -168,7 +168,7 @@ void MultiDetector::updateSettings()
 					selectedChannels.append(i);
 					settings[stream->getStreamId()]->inputChannels.add(i);
 				}
-				stream->getParameter("CNN_Input")->setNextValue(selectedChannels);
+				stream->getParameter("CNN_Input")->currentValue = selectedChannels;
 
 			}
 		}
