@@ -83,8 +83,7 @@ MultiDetectorEditor::MultiDetectorEditor(GenericProcessor* parentNode)
     addAndMakeVisible(fileButton.get());
 
     fileNameLabel = std::make_unique<Label>("File name", "No file loaded");
-    fileNameLabel->setFont(Font("Silkscreen", "Regular", 10));
-    fileNameLabel->setBounds(250, 25, 200, 20);
+    fileNameLabel->setBounds(215, 25, 200, 20);
     addAndMakeVisible(fileNameLabel.get());
 
     Parameter* param = getProcessor()->getParameter("pulse_duration");
@@ -137,9 +136,10 @@ void MultiDetectorEditor::setFile (String file)
 
     String fileFullName = fileToRead.getFullPathName();
     String filePath = lastFilePath.getFullPathName();
+    String fileName = fileToRead.getFileName();
     
     if (rippleDetector->setFile(fileFullName)) {
-        fileNameLabel->setText(fileFullName, dontSendNotification);
+        fileNameLabel->setText(fileName, dontSendNotification);
 
         //setEnabledState(true);
     }
