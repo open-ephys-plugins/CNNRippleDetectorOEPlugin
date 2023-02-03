@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "MultiDetector.h"
 #include <string>
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <Windows.h>
 #define EXPORT __declspec(dllexport)
 #else
@@ -43,7 +43,7 @@ extern "C" EXPORT void getLibInfo(Plugin::LibraryInfo* info)
 	info->apiVersion = PLUGIN_API_VER;
 
 	//Name of the Library, used only for information
-	info->name = "PLUGINLIBRARYNAME";
+	info->name = "CNN Ripple";
 
 	//Version of the library, used only for information
 	info->libVersion = "0.1.0";
