@@ -11,9 +11,5 @@
 !**/Build/CMakeLists.txt
 !**/Build/CMAKE_README.txt
 
-
-# 3. Tensorflow libs (too big)
-**/libs/*
-
-# 4. MacOS specific
+# 3. MacOS specific
 **/.DS_Store
