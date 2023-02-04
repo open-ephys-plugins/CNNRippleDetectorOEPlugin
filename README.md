@@ -59,7 +59,7 @@ Instructions for using the CNN Ripple plugin are available [here](https://open-e
     # Intel based Mac:
     cmake -G "Xcode" -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=x86_64 ..
 
-    # Apple Silicon based Mac: 
+    # Apple Silicon based Mac (coming soon)
     cmake -G "Xcode" -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES=arm64 ..
 
     # Build and run the generated Xcode project using the INSTALL target
