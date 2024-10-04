@@ -31,65 +31,77 @@ MultiDetector::MultiDetector() : GenericProcessor("CNN Ripple")
 {
 
 	addSelectedChannelsParameter(
-		Parameter::STREAM_SCOPE,
+		Parameter::ParameterScope::STREAM_SCOPE,
 		"CNN_Input",
+		"CNN Input",
 		"The 8 continuous channels to use as input into the CNN",
 		8
 	);
 
 	addFloatParameter(
-		Parameter::STREAM_SCOPE,
+		Parameter::ParameterScope::STREAM_SCOPE,
 		"pulse_duration",
+		"Pulse duration",
 		"Pulse duration (in ms)",
-		 48, 	//default 
-		 0, 	//min
-		 9999,  //max
-		 1  	//step
+		"ms",
+		48, 	//default 
+		0, 	//min
+		9999,  //max
+		1  	//step
 	);
 
 	addFloatParameter(
-		Parameter::STREAM_SCOPE,
+		Parameter::ParameterScope::STREAM_SCOPE,
 		"timeout",
+		"Timeout",
 		"Minimum time between events (in ms)",
-		 48, 	//default 
-		 0, 	//min
-		 9999,  //max
-		 1  	//step
+		"ms",
+		48, 	//default 
+		0, 	//min
+		9999,  //max
+		1  	//step
 	);
 
 	addFloatParameter(
-		Parameter::STREAM_SCOPE,
+		Parameter::ParameterScope::STREAM_SCOPE,
 		"calibration_time",
+		"Calibration Time",
 		"Duration of calibration time (in s)",
-		 60, 	//default 
-		 0, 	//min
-		 9999,  //max
-		 1  	//step
+		"s",
+		60, 	//default 
+		0, 	//min
+		9999,  //max
+		1  	//step
 	);
 
 	addFloatParameter(
-		Parameter::STREAM_SCOPE,
+		Parameter::ParameterScope::STREAM_SCOPE,
 		"threshold",
+		"Threshold",
 		"Probability threshold",
-		 0.5, 	//default
-		 0, 	//min
-		 1,     //max
-		 0.01  	//step
+		"",
+		0.5, 	//default
+		0, 	//min
+		1,     //max
+		0.01  	//step
 	);
 
 	addFloatParameter(
-		Parameter::STREAM_SCOPE,
+		Parameter::ParameterScope::STREAM_SCOPE,
 		"drift",
+		"Drift",
 		"Drift prevention threshold (standard deviations)",
-		 0, 	//default 
-		 0, 	//min
-		 20,    //max
-		 0.1  	//step
+		"STDDEV",
+		0, 	//default 
+		0, 	//min
+		20,    //max
+		0.1  	//step
 	);
 
 	addIntParameter(
-		Parameter::STREAM_SCOPE,
+		Parameter::ParameterScope::STREAM_SCOPE,
 		"output",
+		"Output",
 		"The output TTL line",
 		1, 		//deafult
 		1, 		//min
@@ -116,20 +128,20 @@ MultiDetector::MultiDetector() : GenericProcessor("CNN Ripple")
 	channel1 = -1;
 	channel2 = -1;
 
-	calibrationBuffer = std::vector<std::vector<float>>(NUM_CHANNELS);
+	calibrationBuffer = std::vector<std::vector<float>>(NUM_INPUT_CHANNELS);
 	calibrationTime = 60 * 1; // sec
 	elapsedCalibration = 0; // points
 	isCalibration = true;
-	channelsStds = std::vector<double>(NUM_CHANNELS);
-	channelsMeans = std::vector<double>(NUM_CHANNELS);
-	channelsNewStds = std::vector<double>(NUM_CHANNELS);
-	channelsNewMeans = std::vector<double>(NUM_CHANNELS);
-	channelsOldStds = std::vector<double>(NUM_CHANNELS);
-	channelsOldMeans = std::vector<double>(NUM_CHANNELS);
+	channelsStds = std::vector<double>(NUM_INPUT_CHANNELS);
+	channelsMeans = std::vector<double>(NUM_INPUT_CHANNELS);
+	channelsNewStds = std::vector<double>(NUM_INPUT_CHANNELS);
+	channelsNewMeans = std::vector<double>(NUM_INPUT_CHANNELS);
+	channelsOldStds = std::vector<double>(NUM_INPUT_CHANNELS);
+	channelsOldMeans = std::vector<double>(NUM_INPUT_CHANNELS);
 
 	thrDrift = 0.;
 
-	for (int i = 0; i < NUM_CHANNELS; i++) {
+	for (int i = 0; i < NUM_INPUT_CHANNELS; i++) {
 		calibrationBuffer[i] = std::vector<float>(calibrationTime * downsampledSamplingRate);
 		channelsMeans[i] = 0.;
 	}
@@ -157,13 +169,13 @@ void MultiDetector::updateSettings()
 	{
 
         // Only process stream if it has 8 or more channels
-		if (getDataStream(stream->getStreamId())->getContinuousChannels().size() >= NUM_CHANNELS)
+		if (getDataStream(stream->getStreamId())->getContinuousChannels().size() >= NUM_INPUT_CHANNELS)
 		{
-			if (stream->getParameter("CNN_Input")->getValue().size() != NUM_CHANNELS) {
+			if (stream->getParameter("CNN_Input")->getValue().size() != NUM_INPUT_CHANNELS) {
 
 				settings[stream->getStreamId()]->inputChannels.clear();
 				var selectedChannels;
-				for (int i = 0; i < NUM_CHANNELS; i++)
+				for (int i = 0; i < NUM_INPUT_CHANNELS; i++)
 				{
 					selectedChannels.append(i);
 					settings[stream->getStreamId()]->inputChannels.add(i);
@@ -194,19 +206,19 @@ void MultiDetector::updateSettings()
 		settings[stream->getStreamId()]->roundBufferWriteIndex = 0;
 		settings[stream->getStreamId()]->roundBufferNumElements = 0;
 
-		settings[stream->getStreamId()]->predictBuffer = std::vector<float>(predictBufferSize * NUM_CHANNELS);
+		settings[stream->getStreamId()]->predictBuffer = std::vector<float>(predictBufferSize * NUM_INPUT_CHANNELS);
 		settings[stream->getStreamId()]->predictBufferSum = std::vector<float>(predictBufferSize);
         
         settings[stream->getStreamId()]->globalSample = 0;
-        settings[stream->getStreamId()]->calibrationBuffer = std::vector<std::vector<float>>(NUM_CHANNELS);
+        settings[stream->getStreamId()]->calibrationBuffer = std::vector<std::vector<float>>(NUM_INPUT_CHANNELS);
 
-        settings[stream->getStreamId()]->channelsOldStds = std::vector<double>(NUM_CHANNELS);
-        settings[stream->getStreamId()]->channelsNewStds = std::vector<double>(NUM_CHANNELS);
-        settings[stream->getStreamId()]->channelsStds = std::vector<double>(NUM_CHANNELS);
+        settings[stream->getStreamId()]->channelsOldStds = std::vector<double>(NUM_INPUT_CHANNELS);
+        settings[stream->getStreamId()]->channelsNewStds = std::vector<double>(NUM_INPUT_CHANNELS);
+        settings[stream->getStreamId()]->channelsStds = std::vector<double>(NUM_INPUT_CHANNELS);
 
-        settings[stream->getStreamId()]->channelsOldMeans = std::vector<double>(NUM_CHANNELS);
-        settings[stream->getStreamId()]->channelsNewMeans = std::vector<double>(NUM_CHANNELS);
-        settings[stream->getStreamId()]->channelsMeans = std::vector<double>(NUM_CHANNELS);
+        settings[stream->getStreamId()]->channelsOldMeans = std::vector<double>(NUM_INPUT_CHANNELS);
+        settings[stream->getStreamId()]->channelsNewMeans = std::vector<double>(NUM_INPUT_CHANNELS);
+        settings[stream->getStreamId()]->channelsMeans = std::vector<double>(NUM_INPUT_CHANNELS);
 
         settings[stream->getStreamId()]->sinceLast = effectiveStride;
 		settings[stream->getStreamId()]->nextSampleEnable = 0;
@@ -229,12 +241,12 @@ void MultiDetector::updateSettings()
 			getDataStream(stream->getStreamId())
 		};
 		eventChannels.add(new EventChannel(s));
-		eventChannels.getLast()->addProcessor(processorInfo.get());
+		eventChannels.getLast()->addProcessor(this);
 		settings[stream->getStreamId()]->eventChannel = eventChannels.getLast();
 		settings[stream->getStreamId()]->turnoffEvent1 = nullptr;
 
 
-		for (int i = 0; i < NUM_CHANNELS; i++) {
+		for (int i = 0; i < NUM_INPUT_CHANNELS; i++) {
 			settings[stream->getStreamId()]->channelsMeans[i] = 0.;
 			settings[stream->getStreamId()]->predictBufferSum[i] = 0.;
 		}
@@ -263,17 +275,17 @@ void MultiDetector::parameterValueChanged(Parameter* param)
 
 		Array<ContinuousChannel*> chans = getDataStream(param->getStreamId())->getContinuousChannels();
 
-		// Check that input stream has at least NUM_CHANNELS channels
-		if (chans.size() >= NUM_CHANNELS)
+		// Check that input stream has at least NUM_INPUT_CHANNELS channels
+		if (chans.size() >= NUM_INPUT_CHANNELS)
 		{
 
 			Array<var>* array = param->getValue().getArray();
 			
-			if (array->size() == NUM_CHANNELS)
+			if (array->size() == NUM_INPUT_CHANNELS)
 			{
 				settings[streamId]->inputChannels.clear();
 
-				for (int i = 0; i < NUM_CHANNELS; i++)
+				for (int i = 0; i < NUM_INPUT_CHANNELS; i++)
 				{
 
 					int localIndex = int(array->getReference(i));
@@ -364,7 +376,7 @@ bool MultiDetector::enable()
 	roundBufferNumElements = 0;
 
 
-	predictBuffer = std::vector<float>(predictBufferSize * NUM_CHANNELS);
+	predictBuffer = std::vector<float>(predictBufferSize * NUM_INPUT_CHANNELS);
 	predictBufferSum = std::vector<float>(predictBufferSize);
 	*/
 
@@ -395,8 +407,8 @@ void MultiDetector::process(AudioBuffer<float>& buffer)
             unsigned int ts = (unsigned int)(1000.0f * float(firstSampleNumberInBlock) / stream->getSampleRate());
             
             // Get input channel data pointers
-            const float* channelData[NUM_CHANNELS];
-            for (int i = 0; i < NUM_CHANNELS; i++) {
+            const float* channelData[NUM_INPUT_CHANNELS];
+            for (int i = 0; i < NUM_INPUT_CHANNELS; i++) {
                 channelData[i] = buffer.getReadPointer(settings[streamId]->inputChannels[i]);
             }
             
@@ -425,7 +437,7 @@ void MultiDetector::process(AudioBuffer<float>& buffer)
                         
                         settings[streamId]->elapsedCalibrationPoints++;
 
-                        for (int chan = 0; chan < NUM_CHANNELS; chan++)
+                        for (int chan = 0; chan < NUM_INPUT_CHANNELS; chan++)
                             pushMeanStd(streamId, channelData[chan][sample], chan);
                             
                         if (settings[streamId]->elapsedCalibrationPoints >= (settings[streamId]->calibrationTime * downsampledSamplingRate)) {
@@ -434,7 +446,7 @@ void MultiDetector::process(AudioBuffer<float>& buffer)
                             
 							LOGD("Calibration finished");
 
-                            for (int chan = 0; chan < NUM_CHANNELS; chan++) {
+                            for (int chan = 0; chan < NUM_INPUT_CHANNELS; chan++) {
                                 settings[streamId]->channelsMeans[chan] = getMean(streamId, chan);
                                 settings[streamId]->channelsStds[chan] = getStd(streamId, chan);
 
@@ -444,7 +456,7 @@ void MultiDetector::process(AudioBuffer<float>& buffer)
                         
                     }
                         
-                    for (int chan = 0; chan < NUM_CHANNELS; chan++)
+                    for (int chan = 0; chan < NUM_INPUT_CHANNELS; chan++)
                         settings[streamId]->roundBuffer[settings[streamId]->roundBufferWriteIndex][chan] = channelData[chan][sample];
                         
                     settings[streamId]->roundBufferWriteIndex = (settings[streamId]->roundBufferWriteIndex + 1) % MAX_ROUND_BUFFER_SIZE;
@@ -468,14 +480,14 @@ void MultiDetector::process(AudioBuffer<float>& buffer)
                     
                     for (int idx = 0; idx < predictBufferSize; idx++) {
                         
-                        for (int chan = 0; chan < NUM_CHANNELS; chan++) {
+                        for (int chan = 0; chan < NUM_INPUT_CHANNELS; chan++) {
                             
-                            settings[streamId]->predictBuffer[(idx*NUM_CHANNELS) + chan] = (settings[streamId]->roundBuffer[temporalReadIndex][chan] - settings[streamId]->channelsMeans[chan]) / settings[streamId]->channelsStds[chan];
-                            settings[streamId]->predictBufferSum[idx] += settings[streamId]->predictBuffer[(idx*NUM_CHANNELS) + chan];
+                            settings[streamId]->predictBuffer[(idx*NUM_INPUT_CHANNELS) + chan] = (settings[streamId]->roundBuffer[temporalReadIndex][chan] - settings[streamId]->channelsMeans[chan]) / settings[streamId]->channelsStds[chan];
+                            settings[streamId]->predictBufferSum[idx] += settings[streamId]->predictBuffer[(idx*NUM_INPUT_CHANNELS) + chan];
                             
                         }
                         
-                        settings[streamId]->predictBufferSum[idx] = abs(settings[streamId]->predictBufferSum[idx] / NUM_CHANNELS);
+                        settings[streamId]->predictBufferSum[idx] = abs(settings[streamId]->predictBufferSum[idx] / NUM_INPUT_CHANNELS);
                         temporalReadIndex = (temporalReadIndex + 1) % MAX_ROUND_BUFFER_SIZE;
                     }
                     
@@ -504,7 +516,7 @@ void MultiDetector::process(AudioBuffer<float>& buffer)
                         
                         TF_Tensor* input_tensor = nullptr, * output_tensor = nullptr;
 
-                        std::vector<std::int64_t> dims = { 1, predictBufferSize, NUM_CHANNELS };
+                        std::vector<std::int64_t> dims = { 1, predictBufferSize, NUM_INPUT_CHANNELS };
                         int num_dims = 3;
                         tf_functions::create_tensor(TF_FLOAT, dims, num_dims, settings[streamId]->predictBuffer, &input_tensor);
 
@@ -665,7 +677,7 @@ void MultiDetector::setPulseDuration(int newPulseDuration) {
 void MultiDetector::setCalibrationTime(float newCalibrationTime) {
 	calibrationTime = newCalibrationTime;
 
-	for (int i = 0; i < NUM_CHANNELS; i++) {
+	for (int i = 0; i < NUM_INPUT_CHANNELS; i++) {
 		calibrationBuffer[i] = std::vector<float>(calibrationTime * downsampledSamplingRate);
 		channelsMeans[i] = 0.;
 	}

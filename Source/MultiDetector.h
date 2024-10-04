@@ -6,7 +6,7 @@
 #include "tf_functions.hpp"
 
 #define MAX_ROUND_BUFFER_SIZE 3000
-#define NUM_CHANNELS 8
+#define NUM_INPUT_CHANNELS 8
 
 class MultiDetectorEditor;
 
@@ -53,7 +53,7 @@ class MultiDetectorSettings
         std::vector<double> channelsOldStds, channelsNewStds, channelsStds;
         std::vector<double> channelsOldMeans, channelsNewMeans, channelsMeans;
 
-        float roundBuffer[MAX_ROUND_BUFFER_SIZE][NUM_CHANNELS];
+        float roundBuffer[MAX_ROUND_BUFFER_SIZE][NUM_INPUT_CHANNELS];
 		int roundBufferWriteIndex;
 		int roundBufferReadIndex;
 		int roundBufferNumElements;
@@ -158,7 +158,7 @@ private:
 	std::vector<double> channelsOldMeans, channelsNewMeans, channelsMeans;
 	std::vector<std::vector<float>> calibrationBuffer;
 
-	float roundBuffer[MAX_ROUND_BUFFER_SIZE][NUM_CHANNELS];
+	float roundBuffer[MAX_ROUND_BUFFER_SIZE][NUM_INPUT_CHANNELS];
 	unsigned int roundBufferWriteIndex;
 	unsigned int roundBufferReadIndex;
 	unsigned int roundBufferNumElements;

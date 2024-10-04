@@ -21,7 +21,7 @@ CustomTextBoxParameterEditor::CustomTextBoxParameterEditor(Parameter* param) : P
         valueTextBox = std::make_unique<Label>("Parameter value", param->getValue().toString());
 
     valueTextBox->setFont(Font("CP Mono", "Plain", 15));
-    valueTextBox->setName(param->getProcessor()->getName() + " (" + String(param->getProcessor()->getNodeId()) + ") - " + param->getName());
+    //valueTextBox->setName(param->getProcessor()->getName() + " (" + String(param->getProcessor()->getNodeId()) + ") - " + param->getName());
     valueTextBox->setColour(Label::textColourId, Colours::white);
     valueTextBox->setColour(Label::backgroundColourId, Colours::grey);
     valueTextBox->setEditable(true);
@@ -73,35 +73,51 @@ MultiDetectorEditor::MultiDetectorEditor(GenericProcessor* parentNode)
 
     rippleDetector = (MultiDetector*)parentNode;
 
-    addSelectedChannelsParameterEditor("CNN_Input", 10, 25);
+    addSelectedChannelsParameterEditor(Parameter::ParameterScope::STREAM_SCOPE, "CNN_Input", 10, 22);
+    ParameterEditor* inputLayer = getParameterEditor("CNN_Input");
+    inputLayer->setLayout (ParameterEditor::Layout::nameOnTop);
+    inputLayer->setSize (90, 34);
 
-    fileButton = std::make_unique<UtilityButton>("Load Model", titleFont);
+    fileButton = std::make_unique<UtilityButton>("Load Model");
     fileButton->addListener(this);
     fileButton->setRadius(3.0f);
     fileButton->setTooltip("Load a model file");
-    fileButton->setBounds(130, 25, 80, 20);
+    fileButton->setBounds(130, 32, 80, 20);
     addAndMakeVisible(fileButton.get());
 
     fileNameLabel = std::make_unique<Label>("File name", "No file loaded");
-    fileNameLabel->setBounds(215, 25, 200, 20);
+    fileNameLabel->setBounds(215, 32, 200, 20);
     addAndMakeVisible(fileNameLabel.get());
 
-    Parameter* param = getProcessor()->getParameter("pulse_duration");
-    addCustomParameterEditor(new CustomTextBoxParameterEditor(param), 10, 45);
+    addTextBoxParameterEditor(Parameter::ParameterScope::STREAM_SCOPE, "pulse_duration", 10, 57);
+    ParameterEditor* pulseDuration = getParameterEditor("pulse_duration");
+    pulseDuration->setLayout (ParameterEditor::Layout::nameOnTop);
+    pulseDuration->setSize (90, 34);
 
-    param = getProcessor()->getParameter("timeout");
-    addCustomParameterEditor(new CustomTextBoxParameterEditor(param), 10, 85);
+    addTextBoxParameterEditor(Parameter::ParameterScope::STREAM_SCOPE, "timeout", 10, 92);
+    ParameterEditor* timeout = getParameterEditor("timeout");
+    timeout->setLayout (ParameterEditor::Layout::nameOnTop);
+    timeout->setSize (90, 34);
 
-    param = getProcessor()->getParameter("calibration_time");
-    addCustomParameterEditor(new CustomTextBoxParameterEditor(param), 130, 45);
+    addTextBoxParameterEditor(Parameter::ParameterScope::STREAM_SCOPE, "calibration_time", 130, 57);
+    ParameterEditor* calibrationTime = getParameterEditor("calibration_time");
+    calibrationTime->setLayout (ParameterEditor::Layout::nameOnTop);
+    calibrationTime->setSize (90, 34);
 
-    param = getProcessor()->getParameter("threshold");
-    addCustomParameterEditor(new CustomTextBoxParameterEditor(param), 130, 85);
+    addTextBoxParameterEditor(Parameter::ParameterScope::STREAM_SCOPE, "threshold", 130, 92);
+    ParameterEditor* threshold = getParameterEditor("threshold");
+    threshold->setLayout (ParameterEditor::Layout::nameOnTop);
+    threshold->setSize (90, 34);
 
-    param = getProcessor()->getParameter("drift");
-    addCustomParameterEditor(new CustomTextBoxParameterEditor(param), 250, 45);
+    addTextBoxParameterEditor(Parameter::ParameterScope::STREAM_SCOPE, "drift", 250, 57);
+    ParameterEditor* drift = getParameterEditor("drift");
+    drift->setLayout (ParameterEditor::Layout::nameOnTop);
+    drift->setSize (90, 34);
 
-    addComboBoxParameterEditor("output", 250, 85);
+    addComboBoxParameterEditor(Parameter::ParameterScope::STREAM_SCOPE, "output", 250, 92);
+    ParameterEditor* output = getParameterEditor("output");
+    output->setLayout (ParameterEditor::Layout::nameOnTop);
+    output->setSize (90, 34);
 
 	lastFilePath = CoreServices::getDefaultUserSaveDirectory();
     // More extensions can be added an separated with semi-collons
