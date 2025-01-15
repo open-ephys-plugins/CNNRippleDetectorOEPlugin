@@ -2,8 +2,8 @@
 #ifndef MULTIDETECTOR_H_DEFINED
 #define MULTIDETECTOR_H_DEFINED
 
-#include <ProcessorHeaders.h>
 #include "tf_functions.hpp"
+#include <ProcessorHeaders.h>
 
 #define MAX_ROUND_BUFFER_SIZE 3000
 #define NUM_INPUT_CHANNELS 8
@@ -12,194 +12,189 @@ class MultiDetectorEditor;
 
 class MultiDetectorSettings
 {
-	public:
+public:
+    /** Constructor -- sets default values **/
+    MultiDetectorSettings();
 
-		/** Constructor -- sets default values **/
-		MultiDetectorSettings();
+    /** Destructor **/
+    ~MultiDetectorSettings() {}
 
-		/** Destructor **/
-		~MultiDetectorSettings() {}
+    /** Creates an event associated with Ripple Detection */
+    TTLEventPtr createEvent (int64 outputLine, int64 sample_number, bool state);
 
-		/** Creates an event associated with Ripple Detection */
-		TTLEventPtr createEvent(int64 outputLine, int64 sample_number, bool state);
+    Array<int> inputChannels;
 
-		Array<int> inputChannels;
+    int downsampleFactor;
 
-		int downsampleFactor;
+    int pulseDuration;
+    int pulseDurationSamples;
 
-		int pulseDuration;
-		int pulseDurationSamples;
+    /* Calibration */
+    int calibrationTime;
+    std::vector<std::vector<float>> calibrationBuffer;
+    int elapsedCalibrationPoints;
+    bool isCalibrating;
 
-		/* Calibration */
-		int calibrationTime;
-		std::vector<std::vector<float>> calibrationBuffer;
-		int elapsedCalibrationPoints;
-		bool isCalibrating;
+    float drift;
 
-		float drift;
+    int timeout;
+    int timeoutSamples;
+    int timeoutDownsampled;
 
-		int timeout;
-		int timeoutSamples;
-		int timeoutDownsampled;
+    float threshold;
+    int thresholdSign;
 
-		float threshold;
-		int thresholdSign;
-    
-        /* Sample buffering */
-        int globalSample;
-        int forwardSamples;
-        int nextSampleEnable;
-    
-        std::vector<double> channelsOldStds, channelsNewStds, channelsStds;
-        std::vector<double> channelsOldMeans, channelsNewMeans, channelsMeans;
+    /* Sample buffering */
+    int globalSample;
+    int forwardSamples;
+    int nextSampleEnable;
 
-        float roundBuffer[MAX_ROUND_BUFFER_SIZE][NUM_INPUT_CHANNELS];
-		int roundBufferWriteIndex;
-		int roundBufferReadIndex;
-		int roundBufferNumElements;
-        unsigned int sinceLast;
+    std::vector<double> channelsOldStds, channelsNewStds, channelsStds;
+    std::vector<double> channelsOldMeans, channelsNewMeans, channelsMeans;
 
-		std::vector<float> predictBuffer;
-		std::vector<float> predictBufferSum;
-    
-        bool skipPrediction;
+    float roundBuffer[MAX_ROUND_BUFFER_SIZE][NUM_INPUT_CHANNELS];
+    int roundBufferWriteIndex;
+    int roundBufferReadIndex;
+    int roundBufferNumElements;
+    unsigned int sinceLast;
 
-		int outputChannel;
-    
-        TTLEventPtr turnoffEvent1;
-        TTLEventPtr turnoffEvent2;
+    std::vector<float> predictBuffer;
+    std::vector<float> predictBufferSum;
 
-		/** TTL event channel */
-		EventChannel* eventChannel;
+    bool skipPrediction;
 
+    int outputChannel;
+
+    TTLEventPtr turnoffEvent1;
+    TTLEventPtr turnoffEvent2;
+
+    /** TTL event channel */
+    EventChannel* eventChannel;
 };
 
 class MultiDetector : public GenericProcessor
 {
 public:
-	/** The class constructor, used to initialize any members. */
-	MultiDetector();
+    /** The class constructor, used to initialize any members. */
+    MultiDetector();
 
-	/** The class destructor, used to deallocate memory */
-	~MultiDetector();
+    /** The class destructor, used to deallocate memory */
+    ~MultiDetector();
 
-	/** Creates the custom editor for this plugin */
-	AudioProcessorEditor* createEditor() override;
+    /** Creates the custom editor for this plugin */
+    AudioProcessorEditor* createEditor() override;
 
-	/** Registers parameters for this plugin */
-	void registerParameters() override;
+    /** Registers parameters for this plugin */
+    void registerParameters() override;
 
-	/** Processes data coming into the plugin */
-	void process(AudioBuffer<float>& buffer) override;
+    /** Processes data coming into the plugin */
+    void process (AudioBuffer<float>& buffer) override;
 
-	/** Called when a processor needs to update its settings */
-	void updateSettings() override;
+    /** Called when a processor needs to update its settings */
+    void updateSettings() override;
 
-	/** Called when a parameter is updated */
-    void parameterValueChanged(Parameter* param) override;
+    /** Called when a parameter is updated */
+    void parameterValueChanged (Parameter* param) override;
 
-	bool enable();
-	bool disable();
+    bool enable();
+    bool disable();
 
-	bool setFile(String fullpath);
+    bool setFile (String fullpath);
 
-	float getPredictBufferSize();
-	void setPredictBufferSize(float newPredictBufferSize);
-	float getStride();
-	void setStride(float newStride);
+    float getPredictBufferSize();
+    void setPredictBufferSize (float newPredictBufferSize);
+    float getStride();
+    void setStride (float newStride);
 
-	int getTimeout();
-	int getPulseDuration();
-	float getCalibrationTime();
-	float getThreshold1();
-	float getThreshold2();
-	String getInputLayer();
-	float getThrDrift();
+    int getTimeout();
+    int getPulseDuration();
+    float getCalibrationTime();
+    float getThreshold1();
+    float getThreshold2();
+    String getInputLayer();
+    float getThrDrift();
 
-	void setTimeout(int newTimeout);
-	void setPulseDuration(int newPulseDuration);
-	void setCalibrationTime(float newCalibrationTime);
-	void setThreshold1(float newThreshold);
-	void setThreshold2(float newThreshold);
-	void setInputLayer(const String& newInputLayer);
-	void setChannel1(int channel);
-	void setChannel2(int channel);
-	void setThrDrift(float newThrDrift);
+    void setTimeout (int newTimeout);
+    void setPulseDuration (int newPulseDuration);
+    void setThreshold1 (float newThreshold);
+    void setThreshold2 (float newThreshold);
+    void setInputLayer (const String& newInputLayer);
+    void setChannel1 (int channel);
+    void setChannel2 (int channel);
+    void setThrDrift (float newThrDrift);
 
-	/** Save parameters*/
-    void saveCustomParametersToXml(XmlElement* xml);
-    
+    /** Save parameters*/
+    void saveCustomParametersToXml (XmlElement* xml);
+
     /** Load parameters*/
-    void loadCustomParametersFromXml(XmlElement* xml);
+    void loadCustomParametersFromXml (XmlElement* xml);
 
 private:
+    MultiDetectorEditor* ed;
 
-	MultiDetectorEditor* ed;
+    StreamSettings<MultiDetectorSettings> settings;
 
-	StreamSettings<MultiDetectorSettings> settings;
+    float calculateMean (std::vector<float> data);
+    float calculateStd (std::vector<float> data, float mean);
+    void pushMeanStd (uint64 streamId, double x, int chan);
+    double getMean (uint64 streamId, int chan);
+    double getStd (uint64 streamId, int chan);
 
-	float calculateMean(std::vector<float> data);
-	float calculateStd(std::vector<float> data, float mean);
-	void pushMeanStd(uint64 streamId, double x, int chan);
-	double getMean(uint64 streamId, int chan);
-	double getStd(uint64 streamId, int chan);
-    
-    void predict(uint64 streamId);
+    void predict (uint64 streamId);
 
-	void createEventChannels();
-	void sendTTLEvent(uint64 streamId, uint64 bufferTs, int bufferNumSamples, int sample_index);
+    void createEventChannels();
+    void sendTTLEvent (uint64 streamId, uint64 bufferTs, int bufferNumSamples, int sample_index);
 
-	EventChannel *ttlEventChannel;
+    EventChannel* ttlEventChannel;
 
-	File modelPath;
-	bool modelLoaded;
+    File modelPath;
+    bool modelLoaded;
 
-	float calibrationTime;
-	int elapsedCalibration;
+    float calibrationTime;
+    int elapsedCalibration;
 
-	float roundBuffer[MAX_ROUND_BUFFER_SIZE][NUM_INPUT_CHANNELS];
-	unsigned int roundBufferWriteIndex;
-	unsigned int roundBufferReadIndex;
-	unsigned int roundBufferNumElements;
+    float roundBuffer[MAX_ROUND_BUFFER_SIZE][NUM_INPUT_CHANNELS];
+    unsigned int roundBufferWriteIndex;
+    unsigned int roundBufferReadIndex;
+    unsigned int roundBufferNumElements;
 
-	std::vector<float> predictBuffer;
-	std::vector<float> predictBufferSum;
-	unsigned int predictBufferSize {16};
-	int effectiveStride {8};
-	float thrDrift;
-	bool skipPrediction;
+    std::vector<float> predictBuffer;
+    std::vector<float> predictBufferSum;
+    unsigned int predictBufferSize { 16 };
+    int effectiveStride { 8 };
+    float thrDrift;
+    bool skipPrediction;
 
-	float samplingRate;
-	int downsampledSamplingRate {1250};
-	unsigned int downsampleFactor;
-	unsigned int loopIndex;
+    float samplingRate;
+    int downsampledSamplingRate { 1250 };
+    unsigned int downsampleFactor;
+    unsigned int loopIndex;
 
-	int timeout;
-	int pulseDuration;
-	int timeoutSamples;
-	int pulseDurationSamples;
-	int timeoutDownsampled;
-	String inputLayer;
+    int timeout;
+    int pulseDuration;
+    int timeoutSamples;
+    int pulseDurationSamples;
+    int timeoutDownsampled;
+    String inputLayer;
 
-	int nextSampleEnable;
-	int globalSample;
-	unsigned int forwardSamples;
+    int nextSampleEnable;
+    int globalSample;
+    unsigned int forwardSamples;
 
-	float threshold1;
-	float threshold2;
-	float thresholdSign1;
-	float thresholdSign2;
+    float threshold1;
+    float threshold2;
+    float thresholdSign1;
+    float thresholdSign2;
 
-	int channel1;
-	int channel2;
+    int channel1;
+    int channel2;
 
-	TTLEventPtr turnoffEvent1; // Variable to store a turn off event that should go in the next buffer
-	TTLEventPtr turnoffEvent2;
+    TTLEventPtr turnoffEvent1; // Variable to store a turn off event that should go in the next buffer
+    TTLEventPtr turnoffEvent2;
 
-	TF_Graph * graph = nullptr;
-	TF_Session * session = nullptr;
-	TF_Output input, output;
-
+    TF_Graph* graph = nullptr;
+    TF_Session* session = nullptr;
+    TF_Output input, output;
 };
 
 #endif
