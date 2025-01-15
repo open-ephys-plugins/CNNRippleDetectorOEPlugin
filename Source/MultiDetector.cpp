@@ -29,6 +29,13 @@ TTLEventPtr MultiDetectorSettings::createEvent(int64 outputLine, int64 sample_nu
 
 MultiDetector::MultiDetector() : GenericProcessor("CNN Ripple")
 {
+	inputLayer = "conv1d_input";
+	modelLoaded = false;
+	isEnabled = false;
+}
+
+void MultiDetector::registerParameters()
+{
 
 	addSelectedChannelsParameter(
 		Parameter::ParameterScope::STREAM_SCOPE,
@@ -45,9 +52,9 @@ MultiDetector::MultiDetector() : GenericProcessor("CNN Ripple")
 		"Pulse duration (in ms)",
 		"ms",
 		48, 	//default 
-		0, 	//min
-		9999,  //max
-		1  	//step
+		0, 		//min
+		9999,  	//max
+		1  		//step
 	);
 
 	addFloatParameter(
@@ -57,9 +64,9 @@ MultiDetector::MultiDetector() : GenericProcessor("CNN Ripple")
 		"Minimum time between events (in ms)",
 		"ms",
 		48, 	//default 
-		0, 	//min
-		9999,  //max
-		1  	//step
+		0, 		//min
+		9999,  	//max
+		1  		//step
 	);
 
 	addFloatParameter(
@@ -69,9 +76,9 @@ MultiDetector::MultiDetector() : GenericProcessor("CNN Ripple")
 		"Duration of calibration time (in s)",
 		"s",
 		60, 	//default 
-		0, 	//min
-		9999,  //max
-		1  	//step
+		0, 		//min
+		9999,  	//max
+		1  		//step
 	);
 
 	addFloatParameter(
@@ -81,8 +88,8 @@ MultiDetector::MultiDetector() : GenericProcessor("CNN Ripple")
 		"Probability threshold",
 		"",
 		0.5, 	//default
-		0, 	//min
-		1,     //max
+		0, 		//min
+		1,     	//max
 		0.01  	//step
 	);
 
@@ -92,9 +99,9 @@ MultiDetector::MultiDetector() : GenericProcessor("CNN Ripple")
 		"Drift",
 		"Drift prevention threshold (standard deviations)",
 		"STDDEV",
-		0, 	//default 
-		0, 	//min
-		20,    //max
+		0, 		//default 
+		0, 		//min
+		20,    	//max
 		0.1  	//step
 	);
 
@@ -108,47 +115,6 @@ MultiDetector::MultiDetector() : GenericProcessor("CNN Ripple")
 		16		//max
 	);
 
-	inputLayer = "conv1d_input";
-
-	modelLoaded = false;
-	isEnabled = modelLoaded;
-
-	/*
-	nextSampleEnable = 0;
-	globalSample = 0;
-	forwardSamples = 0;
-
-	threshold1 = 0.5;
-	thresholdSign1 = 1;
-	threshold2 = 0.5;
-	thresholdSign2 = 1;
-	turnoffEvent1 = nullptr;
-	turnoffEvent2 = nullptr;
-
-	channel1 = -1;
-	channel2 = -1;
-
-	calibrationBuffer = std::vector<std::vector<float>>(NUM_INPUT_CHANNELS);
-	calibrationTime = 60 * 1; // sec
-	elapsedCalibration = 0; // points
-	isCalibration = true;
-	channelsStds = std::vector<double>(NUM_INPUT_CHANNELS);
-	channelsMeans = std::vector<double>(NUM_INPUT_CHANNELS);
-	channelsNewStds = std::vector<double>(NUM_INPUT_CHANNELS);
-	channelsNewMeans = std::vector<double>(NUM_INPUT_CHANNELS);
-	channelsOldStds = std::vector<double>(NUM_INPUT_CHANNELS);
-	channelsOldMeans = std::vector<double>(NUM_INPUT_CHANNELS);
-
-	thrDrift = 0.;
-
-	for (int i = 0; i < NUM_INPUT_CHANNELS; i++) {
-		calibrationBuffer[i] = std::vector<float>(calibrationTime * downsampledSamplingRate);
-		channelsMeans[i] = 0.;
-	}
-
-	printf("Sampling rate %f Downsample factor %d\n", samplingRate, downsampleFactor);
-	printf("nInputs %d nOutputs %d\n", getNumInputs(), getNumOutputs());
-	*/
 }
 
 MultiDetector::~MultiDetector()
@@ -350,47 +316,13 @@ void MultiDetector::parameterValueChanged(Parameter* param)
 
 bool MultiDetector::enable()
 {
-	/*
-	const DataChannel* inChan = getDataChannel(0);
-	if (inChan == nullptr) {
-		printf("No input channels.\n");
-		return false;
-	}
-	samplingRate = inChan->getSampleRate();
-
-	downsampleFactor = (unsigned int)samplingRate / downsampledSamplingRate;
-	pulseDurationSamples = int(std::ceil(pulseDuration * samplingRate / 1000.0f));
-	timeoutSamples = int(std::floor(timeout * samplingRate / 1000.0f));
-	timeoutDownsampled = int(std::floor(timeoutSamples / downsampleFactor));
-
-
-	if (modelLoaded == false) {
-		printf("Model not loaded yet.\n");
-		return false;
-	}
-
-
-	// Restart round buffer
-	roundBufferWriteIndex = 0;
-	roundBufferReadIndex = 0;
-	roundBufferNumElements = 0;
-
-
-	predictBuffer = std::vector<float>(predictBufferSize * NUM_INPUT_CHANNELS);
-	predictBufferSum = std::vector<float>(predictBufferSize);
-	*/
-
 	return true;
 }
-
 
 bool MultiDetector::disable()
 {
-	// TODO
-
 	return true;
 }
-
 
 void MultiDetector::process(AudioBuffer<float>& buffer)
 {
@@ -672,18 +604,6 @@ void MultiDetector::setTimeout(int newTimeout) {
 void MultiDetector::setPulseDuration(int newPulseDuration) {
 	pulseDuration = newPulseDuration;
 	pulseDurationSamples = int(std::ceil(pulseDuration * samplingRate / 1000.0f));
-}
-
-void MultiDetector::setCalibrationTime(float newCalibrationTime) {
-	calibrationTime = newCalibrationTime;
-
-	for (int i = 0; i < NUM_INPUT_CHANNELS; i++) {
-		calibrationBuffer[i] = std::vector<float>(calibrationTime * downsampledSamplingRate);
-		channelsMeans[i] = 0.;
-	}
-
-	isCalibration = true;
-	elapsedCalibration = 0;
 }
 
 void MultiDetector::setThreshold1(float newThreshold) {

@@ -86,6 +86,9 @@ public:
 	/** Creates the custom editor for this plugin */
 	AudioProcessorEditor* createEditor() override;
 
+	/** Registers parameters for this plugin */
+	void registerParameters() override;
+
 	/** Processes data coming into the plugin */
 	void process(AudioBuffer<float>& buffer) override;
 
@@ -151,12 +154,8 @@ private:
 	File modelPath;
 	bool modelLoaded;
 
-	bool isCalibration;
 	float calibrationTime;
 	int elapsedCalibration;
-	std::vector<double> channelsOldStds, channelsNewStds, channelsStds;
-	std::vector<double> channelsOldMeans, channelsNewMeans, channelsMeans;
-	std::vector<std::vector<float>> calibrationBuffer;
 
 	float roundBuffer[MAX_ROUND_BUFFER_SIZE][NUM_INPUT_CHANNELS];
 	unsigned int roundBufferWriteIndex;
